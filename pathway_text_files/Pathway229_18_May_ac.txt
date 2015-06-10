@@ -1,0 +1,17 @@
+BiochemicalReaction1053#TTR:RBP:atROL binds to STRA6 receptor#REACT_160313#0
+BiochemicalReaction1054#atROL (extracellular) is transported to cytosol by STRA6#REACT_160278#0
+BiochemicalReaction1055#atROL binds RBP1 to form RBP1:atROL#REACT_160072#0.14285714285714285
+BiochemicalReaction1056#LRAT esterifies all-trans-retinol in RPE#REACT_160266#0
+BiochemicalReaction1057#RPE65 isomero-hydrolyses atREs to 11cROL#REACT_160208#0
+BiochemicalReaction1058#RDHs oxidise 11cROL to 11cRAL#REACT_160138#0
+BiochemicalReaction1059#RDH5 oxidises 11cROL to 11cRAL#REACT_160124#0
+BiochemicalReaction1060#11cRAL (RPE) translocates to photoreceptor outer segment#REACT_160302#0
+BiochemicalReaction1061#11-cis-retinal binds to rhodopsin#REACT_160240#0
+BiochemicalReaction1062#Rhodopsin activation#REACT_160286#0
+BiochemicalReaction1063#ABCA4 mediates atRAL transport#REACT_111189#0.02857142857142857
+BiochemicalReaction1064#NRPE is a substrate for ABCA4#REACT_160211#0.02857142857142857
+BiochemicalReaction1065#NRPE dissociates to atRAL and PE#REACT_160267#0.45714285714285713
+BiochemicalReaction1066#atRAL(membrane) diffuses to atRAL(cytosol)#REACT_160117#0.45714285714285713
+BiochemicalReaction1067#RDH12 reduces atRAL to atROL#REACT_160140#0
+BiochemicalReaction1068#RDH8 reduces atRAL to atROL#REACT_160121#0
+BiochemicalReaction1069#RBP3 regulates the transport of atROL from ROS to RPE#REACT_160091#0

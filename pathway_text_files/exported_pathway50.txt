@@ -1,0 +1,1 @@
+"BiochemicalReaction27"#"Adenylate cyclase produces cAMP"#"BiochemicalReaction28"#"cAMP induces dissociation of inactive PKA tetramers"#"follows"

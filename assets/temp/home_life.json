@@ -1,0 +1,20 @@
+{
+  "nodes": [
+    {"display_name":"sam", "name":"id1", "group":"on"},
+    {"display_name":"louise", "name":"id2", "group":"on"},
+    {"display_name":"wally", "name":"id3", "group":"off"},
+    {"display_name":"old_boy", "name":"id4", "group":"off"},
+    {"display_name":"ann_whoo", "name":"id5", "group":"on"},
+    {"display_name":"humphrey", "name":"id6", "group":"unknown"},
+    {"display_name":"hypotenuse", "name":"id7", "group":"on"},
+    {"display_name":"moon", "name":"id8", "group":"on"}
+  ],
+  "links": [
+    {"source":"id1", "target":"id2", "value":5},
+    {"source":"id2", "target":"id3", "value":5},
+    {"source":"id3", "target":"id4", "value":5},
+    {"source":"id3", "target":"id6", "value":5},
+    {"source":"id6", "target":"id4", "value":5},
+    {"source":"id6", "target":"id8", "value":5}
+  ]
+}

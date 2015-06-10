@@ -1,0 +1,783 @@
+:- use_module(library(lists)).
+:-dynamic state_of_entity_seen_before/3.
+%:- dynamic tuple/3.
+:- dynamic sorted_diff/1.
+:-dynamic links/1.
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%Class Predicates%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%This commented to surpess annoying warnings for the time being.
+
+index_of_col(Col,Index):-
+	collumns(List),
+	List=[collumns|CoLList],
+	indexOf(CoLList,Col,Index).
+
+
+
+sample_diagnosis(Sample,Diagnosis,Tumor):-
+	index_of_col('Diagnosis',Diagnosis_Index),
+	index_of_col('Sample ID',Sample_Id_Index),
+	index_of_col('Tumor stage',Tumor_stage_Index),
+	sample_class(Sample_List),
+	Sample_List=[sample_class|Sample_Tuple],
+	Sample_Tuple=[H|_T],H\='Dataset ID',
+	nth0(Diagnosis_Index,Sample_Tuple,Diagnosis),
+	nth0(Sample_Id_Index,Sample_Tuple,Sample),
+	nth0(Tumor_stage_Index,Sample_Tuple,Tumor).
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%State related predicates%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%If a complex does not have any proteins, sets or complexes its state is on. Similar for inputs to a reaction. To be done.
+%might find this too many times.. because of many -to many
+probe_value_in_sample(Probe,Sample,Value):-
+	samples(Sample, Probe, Value).
+
+sample_tuple(Sample,Diagnosis,Tumor,Probe,Value):-
+	samples(Sample, Probe,Value),
+	sample_diagnosis(Sample,Diagnosis,Tumor).
+
+%used where sample is instantiated. Finds a probe and value.
+uniProt_Sample_Probes(Uniprot,Sample,Probe,Value):-
+	samples2(Sample, Probe, Value, Uniprot).
+	%old: sample_tuple(Sample,_D,_T,P,V),probe_uniProt(P,Uniprot). %I have switched this around.
+		% probe_uniProt(P,'Q96T61'),sample_tuple('GSM102447',D,T,P,V).
+
+
+sample(Sample):-
+	%( nonvar(Dataset) ; Dataset = 'GSE2109' )
+	Dataset = 'GSE2109', %default to 2109
+	sample_class(List),
+	List=[sample_class|Sample_Tuple],
+	Sample_Tuple=[H|_T],H\='Dataset ID',
+	index_of_col('Dataset ID', Dataset_Index),
+	index_of_col('Sample ID',Sample_Index),
+	nth0(Dataset_Index,Sample_Tuple,Dataset),
+	nth0(Sample_Index,Sample_Tuple,Sample).
+
+
+samples(Samples):-
+	findall(Sample, sample(Sample),Samples). %defaulting to gse2109
+
+
+samples_old(Samples):-
+	setof(Sample_in, Probe^ProbeValue^Uniprot^samples2(Sample_in, Probe, ProbeValue, Uniprot), Samples).
+    %member(Sample, Samples).
+sample_old(Sample):-
+	samples_old(Samples),
+	%list_to_set(Samples, SetSamples),
+	member(Sample, Samples).
+
+
+protein_stack(Sample, Reactome_Id, State):-
+        (
+            protein_reactome_id_to_uniprot_id(Reactome_Id, Uniprot_Id),
+
+            uniProt_Sample_Probes(Uniprot_Id, Sample, _Probe, 1),
+            !,
+            State is 1
+        ;
+            State is 0
+        ).
+%this works
+protein(Sample, Reactome_Id,State):-
+	sample(Sample),
+	protein_reactome_id_to_uniprot_id(Reactome_Id, _),
+	protein_stack(Sample, Reactome_Id,State).
+	%write([Sample,Reactome_Id,State]).
+
+%finds multiple copies but is fast
+protein_new(Sample,Reactome_Id,State):-
+	protein_reactome_id_to_uniprot_id(Reactome_Id,Uniprot_Id),
+	samples2(Sample,_Probe,State,Uniprot_Id).
+
+
+
+state_of_entity_seen_before(default,default,default).
+retract_my_things:-
+	retractall(state_of_entity_seen_before(_X,_Y,_Z)),
+	asserta(state_of_entity_seen_before(default,default,default)). %put the default back in.
+
+state_of_entity_tabled(Entity,State,Sample):-
+	%try and find it in asserted if it is not in asserted, calculate it an assert it. Otherwise use it.
+	(
+	   not(state_of_entity_seen_before(Entity,State,Sample))
+	->
+	%if not there then calc it, and assert it.
+	(
+	  state_of_entity(Entity,State,Sample),
+	  asserta(state_of_entity_seen_before(Entity,State,Sample))
+	);
+	  state_of_entity_seen_before(Entity,State,Sample)
+	).
+
+
+%untested
+state_of_entity(Entity,State,Sample):-
+	type(Entity, protein),
+	protein_new(Sample, Entity,State),!.
+
+
+%TODO need to make these faster
+%small molecules are always 'on'
+state_of_entity(Entity,State,_Sample):-
+	component_type(Entity, 'SmallMolecule'),
+	State is 1,!.
+%Physical entities are always 'on'
+state_of_entity(Entity,State,_Sample):-
+	component_type(Entity, 'PhysicalEntity'),
+	State is 1,!.
+
+
+
+
+%if a (simple) entity is a protein set and its state is on
+state_of_entity(Entity,State,Sample):-
+	type(Entity, protein_set),
+	all_children_proteins(Entity),
+	child_component(Entity,Child),
+	protein_new(Sample,Child,1),
+	State is 1,!.
+
+%if a (simple) entity is a protein set and it's state if off
+%I find all proteins for a sample, this is a list of values, I delete all the
+%zeros and the remaining list will unify with the empty list.
+state_of_entity(Entity,State,Sample):-
+	type(Entity, protein_set),
+	all_children_proteins(Entity),
+	child_component(Entity,Child),
+	bagof(Value, Value^protein_new(Sample,Child,Value),Vs),
+	delete(Vs,0,ListOfOnes),ListOfOnes=[],
+	State is 0,!.
+
+%if a (simple) entity is a complex and is off
+state_of_entity(Entity,State,Sample):-
+	type(Entity, complex),
+	all_children_proteins(Entity),
+	child_component(Entity,Child),
+	protein_new(Sample,Child,0),
+	State is 0,!.
+%if a (simple) entity is a complex and is on.
+%I find all protein in a sample, this is a list of values, I delete all the
+%zeros and the remaining list will unify with the empty list.
+state_of_entity(Entity,State,Sample):-
+	type(Entity, complex),
+	all_children_proteins(Entity),
+	child_component(Entity,Child),
+	bagof(Value, Value^protein_new(Sample,Child,Value),Vs),
+	delete(Vs,1,ListOfZeros),ListOfZeros=[],
+	State is 1,!.
+
+%if a complex with components is off
+state_of_entity(Entity,State,Sample):-
+	type(Entity, complex),
+	child_component(Entity,Child),
+	(state_of_entity(Child,0,Sample);
+	protein_new(Sample,Child,0)), %if it has any proteins as input as well as other components
+	State is 0,!.
+
+%if a complex with components is on
+state_of_entity(Entity,State,Sample):-
+	type(Entity, complex),
+	child_component(Entity,Child),
+	bagof(Value, Value^state_of_entity_tabled(Child,Value,Sample),Vs),%if it has component inputs
+	bagof(Value2, Value2^protein_new(Sample,Child,Value2),Vs2),%if it has protein inputs
+	append(Vs, Vs2, Vs3),
+	delete(Vs3,1,ListOfZeros),ListOfZeros=[],%delete all the ones, the list of zeros will be empty if all inputs are on
+	State is 1,!.
+
+%if a protein set with components is on
+state_of_entity(Entity,State,Sample):-
+	type(Entity, protein_set),
+	child_component(Entity,Child),
+	(state_of_entity_tabled(Child,1,Sample);
+	protein_new(Sample,Child,1)), %if it has any proteins as input as well as other entities
+	State is 1,!.
+
+%if a protein set with components is off
+state_of_entity(Entity,State,Sample):-
+	type(Entity, protein_set),
+	child_component(Entity,Child),
+	bagof(Value, Value^state_of_entity_tabled(Child,Value,Sample),Vs), %if it has entity inputs
+	bagof(Value2, Value2^protein_new(Sample,Child,Value2),Vs2), %if it has protein inputs
+	append(Vs, Vs2, Vs3), %join the list of inputs together
+	delete(Vs3,0,ListOfOnes),ListOfOnes=[], %delete all the zeros, the list of 1's will be empty if all inputs are off
+	State is 0,!.
+
+
+
+%We will need two more for state of inputs to a reaction %all inputs need to be present. if controlled by activation- needs to be activated if controlled by inhibiton can not be inhibited
+%reaction_can_procceed(Reaction, State,Sample):-
+reaction_inputs_states(Reaction, Sample, Input_States):-
+	inputs_to_reaction(Reaction,Inputs_List),
+	findall(State,(member(X,Inputs_List), state_of_entity_tabled(X,State,Sample)), Input_States).
+
+reaction_all_inputs_on(Reaction,Sample,State):-
+	reaction_inputs_states(Reaction, Sample, Input_States),
+	delete(Input_States,1,ListOfZeros),ListOfZeros=[], %We delete all the ones from the input states, to give us a list of zeros, if this is an empty list then all inputs were on
+	State is 1,!.
+
+reaction_all_inputs_on(Reaction,Sample,State):-
+	reaction_inputs_states(Reaction, Sample, Input_States),
+	delete(Input_States,1,ListOfStates),
+	member(_X,ListOfStates), %if there is a input that was not on
+	State is 0,!.
+
+%%	TODO NEED TO CHECK FOR FUNNY ACTIVIAITON THINGS
+
+%if a reaction is controlled by an activation this must be on
+%!!!Reaction must be instansinated for this to work correctly!!!%
+%reaction_activated(+Reaction,Sample)
+reaction_activated(Reaction,Sample):-
+	reaction_controlled_by(Reaction,_ControlId,Controller_Id, 'ACTIVATION'),
+	state_of_entity_tabled(Controller_Id,1,Sample).
+	%writeln('Activated').	%is this properly tested?
+
+%if a reaction is not controlled by an activation then we say it is active.
+%!!!Reaction must be instansinated for this to work correctly!!!%
+%reaction_activated(+Reaction,Sample)
+%this is quite slow
+reaction_activated(Reaction,_Sample):-
+	not(reaction_controlled_by(Reaction,_ControlId,_Controller_Id, 'ACTIVATION')).
+	%writeln('Activated'). %reaction is not controlled by an activation so defaults to being activated
+
+%if a reaction is controlled by an inhibition this must be off (does not work with not)
+reaction_inhibited(Reaction,Sample):-
+	reaction_controlled_by(Reaction,_ControlId,Controller_Id, 'INHIBITION'),
+	state_of_entity_tabled(Controller_Id,1,Sample).
+	%writeln('Inhibited').
+
+%reaction_can_procceed
+reaction_can_procceed(Reaction,Sample):-
+	reaction_activated(Reaction,Sample),
+	not(reaction_inhibited(Reaction,Sample)),
+	reaction_all_inputs_on(Reaction,Sample,1).
+
+
+reaction_can_procceed(Reaction,Sample,State):-
+		reaction_can_procceed(Reaction,Sample),
+		State is 1,!.
+
+reaction_can_procceed(_Reaction,_Sample,State):-
+	   State is 0,!.
+
+%11:06
+
+mini_sample(Sample):-
+	member(Sample, ['GSM102447','GSM102449','GSM102451','GSM102455','GSM102507']).
+
+
+%%%%%%Timeing preds
+%
+time_of_reactions(Time1,Time2, _Sample, R, State):-
+	statistics(runtime,_),
+	statistics(runtime,[_,Time1]),
+	%rdf(Rs,'http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://www.biopax.org/release/biopax-level3.owl#BiochemicalReaction'), %checking R is biochemical reaction
+	%reactome_string_id(Rs, R),
+	reaction_can_procceed(R,'GSM102449',State),
+	statistics(runtime,[_,Time2]).
+
+
+
+
+make_a_run(File,Pathway,Set,Time1,Time2):-
+	statistics(runtime,_),
+	statistics(runtime,[_,Time1]),
+	open(File,append,Stream,[]),
+	forall(
+	    (
+	     sample(Sample),
+	     Sample\='GSM89060', %problem with this as not in csv file
+	     reaction_in_pathway(Pathway, Set,Reaction), %this is just a generator at the moment
+	     reaction_can_procceed(Reaction,Sample,State)
+	    ),
+	    (
+	     format("tuple('~w','~w',~w). ~n",[Sample,Reaction,State]),
+	     format(Stream,"tuple('~w','~w',~w). ~n",[Sample,Reaction,State])
+	    )
+	),
+
+	close(Stream),
+	statistics(runtime,[_,Time2]).
+
+all_samples_all_reactions(File,Time1,Time2):-
+	statistics(runtime,_),
+	statistics(runtime,[_,Time1]),
+	open(File,append,Stream,[]),
+	forall(
+	    (	sample(Sample),Sample\='GSM89060'), %problem with this as not in csv file
+	    (
+		forall(
+		    (
+		    component_type_slow(Reaction,'BiochemicalReaction'),
+
+		    reaction_can_procceed(Reaction,Sample,State)
+		),
+		    (
+			format("tuple('~w','~w',~w). ~n",[Sample,Reaction,State]),
+			format(Stream,"tuple('~w','~w',~w). ~n",[Sample,Reaction,State])
+		    )
+		)
+	    )
+	),
+	close(Stream),
+	statistics(runtime,[_,Time2]).
+
+all_reactions_in_sample(Stream,Sample):-
+	Sample\='GSM89060',
+	forall(
+	    (
+	      component_type_slow(Reaction,'BiochemicalReaction'),
+	      reaction_can_procceed(Reaction,Sample,State)
+	     ),
+	    (
+		format("tuple('~w','~w',~w).~n",[Sample,Reaction,State]),
+		format(Stream,"tuple('~w','~w',~w).~n",[Sample,Reaction,State])
+	    )
+	).
+
+
+
+myThread(Stream,Sample):-all_reactions_in_sample(Stream,Sample),thread_exit(Sample).
+
+
+start3(File,Time1,Time2):-
+	statistics(runtime,_),
+	statistics(runtime,[_,Time1]),
+	open(File,append,Stream,[]),
+	findall(myThread(Stream,Sample),(sample(Sample),Sample\='GSM89060'),Goals),
+	concurrent(8,Goals,[]),
+	close(Stream),
+	statistics(runtime,[_,Time2]).
+
+
+start_batch(File,Batch,Time1,Time2):-
+	statistics(runtime,_),
+	statistics(runtime,[_,Time1]),
+	open(File,append,Stream,[]),
+	findall(myThread(Stream,Sample),(batch(Batch,Sample)),Goals),
+	concurrent(8,Goals,[]),
+	close(Stream),
+	statistics(runtime,[_,Time2]).
+
+
+start_batch_non_concurrent(File,Batch,Time1,Time1):-
+	open(File,append,Stream,[]),
+	findall(Sample,batch(Batch,Sample),Samples),
+	forall(
+	    member(S,Samples),
+	    all_reactions_in_sample(Stream,S)
+	),
+	close(Stream).
+
+
+
+
+
+one_sample_all_reactions(File,Sample,Time1,Time2):-
+	statistics(runtime,_),
+	statistics(runtime,[_,Time1]),
+	open(File,append,Stream,[]),
+
+	forall(
+	    (
+	     component_type_slow(Reaction,'BiochemicalReaction'),
+	     Sample\='GSM89060', %problem with this as not in csv file
+	     reaction_can_procceed(Reaction,Sample,State)
+	    ),
+	    (
+	     format("tuple('~w','~w',~w). ~n",[Sample,Reaction,State]),
+	     format(Stream,"tuple('~w','~w',~w). ~n",[Sample,Reaction,State])
+	    )
+	),
+
+
+	close(Stream),
+	statistics(runtime,[_,Time2]).
+
+
+stats(File,Sample,Time1, Time2):-
+	statistics(runtime,_),
+	statistics(runtime,[_,Time1]),
+	open(File,append,Stream,[]),
+
+	forall(
+	    (component_type_slow(Pathway_Id,'Pathway')
+	    ),
+	    (
+		reactome_name(Pathway_Id, Pathway_Name),
+		findall(State,(reaction_in_pathway(Pathway_Id, _Set,Reaction),tuple(Sample,Reaction,State)),States),
+		length(States,Length),
+		sum_list(States,Sum),
+		format("~w#~w#~w#~w ~n",[Pathway_Id,Pathway_Name,Length,Sum]),
+		format(Stream,"~w#~w#~w#~w ~n",[Pathway_Id,Pathway_Name,Length,Sum])
+	    )
+	),
+	close(Stream),
+	statistics(runtime,[_,Time2]).
+
+
+stats_compare(File,Sample1,Sample2,Time1, Time2):-
+	statistics(runtime,_),
+	statistics(runtime,[_,Time1]),
+	open(File,append,Stream,[]),
+
+	forall(
+	    (component_type_slow(Pathway_Id,'Pathway')
+	    ),
+	    (
+		reactome_name(Pathway_Id, Pathway_Name),
+		findall(State,(reaction_in_pathway(Pathway_Id, _Set,Reaction),tuple(Sample1,Reaction,State)),States),
+		findall(State2,(reaction_in_pathway(Pathway_Id, _Set2,Reaction2),tuple(Sample2,Reaction2,State2)),States2),
+		length(States,Length),
+		%length(States2,Length2),
+		%Length2 \=0,
+		%Length \=0,
+		%Length >=10,
+		sum_list(States,Sum),
+		%Percentage1 is Sum/Length,
+		sum_list(States2,Sum2),
+		%Percentage2 is Sum2/Length,
+		%Value is abs(Percentage1-Percentage2),
+		%Value >=0.3,
+
+		format("~w#~w#~w#~w#~w ~n",[Pathway_Id,Pathway_Name,Length,Sum,Sum2]),
+		format(Stream,"~w#~w#~w#~w#~w ~n",[Pathway_Id,Pathway_Name,Length,Sum,Sum2])
+	    )
+	),
+	close(Stream),
+	statistics(runtime,[_,Time2]).
+
+
+
+
+
+
+%%%%%%CSV writing
+%
+%reactions in tuple set
+%WARNING CHECK TUPLE IS CORRECT FIRST. retractall(tuple(_,_,_)).
+%
+%
+%
+pathway_enriched(Sample,Pathway_Id,Total,Total_On,Percent_On):-
+	batch(_,Sample),
+	component_type_slow(Pathway_Id,'Pathway'),
+	all_reactions_in_pathway(Pathway_Id,Reactions),
+	length(Reactions,Total),
+	Total \=0, %some pathways have no reactions? !
+	findall(State,(reaction_in_pathway(Pathway_Id, _Set,Reaction),tuple(Sample,Reaction,State)),States),
+	sum_list(States,Total_On),
+	Percent_On is Total_On/Total.
+
+%component_type_slow(Pathway_Id,'Pathway').
+
+pathway_enriched_avg(Class,Pathway_Id,Avg_On):-
+	findall(Sample,(batch(_,Sample),sample_diagnosis(Sample,Class,_)),Samples),
+	findall(Percent_On,(member(Single,Samples),pathway_enriched(Single,Pathway_Id,_,_,Percent_On)),Percent_On_List),
+	sum_list(Percent_On_List,Sum_Percent_On),
+	length(Percent_On_List,Number_Of_Reactions),
+	Number_Of_Reactions \=0,
+	Avg_On is Sum_Percent_On/Number_Of_Reactions.
+
+
+pathway_enriched_diff_c(Pathway_Id,Diff):-%calculated
+	component_type_slow(Pathway_Id,'Pathway'),
+	pathway_enriched_avg('AC',Pathway_Id,AC_Avg_On),
+	pathway_enriched_avg('SCC',Pathway_Id,SCC_Avg_On),
+	Diff is abs(AC_Avg_On - SCC_Avg_On).
+
+all_pathway_diffs(File):-
+	open(File, append,Stream,[]),
+	   forall(
+	         pathway_enriched_diff(Pathway_Id,Diff),
+	         (
+		     format("pathway_enriched_diff('~w',~w).~n",[Pathway_Id,Diff]),
+	             format(Stream,"pathway_enriched_diff('~w',~w).~n",[Pathway_Id,Diff])
+		 )
+
+	   ),
+
+	close(Stream).
+
+%%%%%%%%%%%%%%%Custom Sort%%%%%%%%%%%%%%%
+%gt(X,Y):-X>Y.
+
+gt(pathway_enriched_diff(_,X),pathway_enriched_diff(_,Y)):-X>Y.
+
+bubblesort_p(List,Sorted):-
+	swap(List,List1),!,
+	bubblesort_p(List1,Sorted).
+
+bubblesort_p(Sorted,Sorted).
+
+swap([X,Y|Rest],[Y,X|Rest]):-
+	gt(X,Y).
+
+swap([Z|Rest],[Z|Rest1]):-
+	swap(Rest,Rest1).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+sort_pathway_diff(Sorted):-
+	findall(pathway_enriched_diff(Pathway_Id,Diff),pathway_enriched_diff(Pathway_Id,Diff),AllDiff),
+	bubblesort_p(AllDiff,Sorted),
+	retractall(sorted_diff(_)),
+	reverse(Sorted,SortedR),
+	assert(sorted_diff(SortedR)).
+
+pathway_with_high_diff(Min_Size,Pathway_Id,Diff):-
+	sorted_diff(Sorted),
+	member(pathway_enriched_diff(Pathway_Id,Diff),Sorted),
+	all_reactions_in_pathway(Pathway_Id, Reactions),
+	length(Reactions,L),
+	L> Min_Size.
+
+
+type_for_aleph(File):-
+	open(File,append,Stream,[]),
+	    forall(
+		batch(_,Sample),
+		format(Stream,"sample('~w').~n",[Sample])
+	    ),
+	    format(Stream,"~n~n~n",[]),
+	    forall(
+		reaction(R),
+		format(Stream,"reaction('~w').~n",[R])
+	    ),
+
+	close(Stream).
+
+aleph_models(File,Pathway):-
+	open(File,append,Stream,[]),
+	forall(
+	    batch(_X,Sample),
+	    (
+		format(Stream,"%% microarray('~w').~n~n",[Sample]),
+	        forall(
+		    (
+		    all_reactions_in_pathway(Pathway, Reactions),
+		    member(Reaction,Reactions)
+		     ),
+		    (
+			tuple(Sample,Reaction,State),
+		        format(Stream,"reaction('~w','~w',~w).~n",[Sample, Reaction,State])
+		    )),
+
+	        format(Stream,"~n~n",[])
+	    )
+	),
+	close(Stream).
+
+
+
+warmr_models(File,Pathway):-
+	open(File,append,Stream,[]),
+	forall(
+	    batch(_X,Sample),
+	    (
+		format(Stream,"begin(model('~w')).~n~nmicroarray('~w').~n~n",[Sample,Sample]),
+	        forall(
+		    (
+		    all_reactions_in_pathway(Pathway, Reactions),
+		    member(Reaction,Reactions)
+		     ),
+		    (
+			tuple(Sample,Reaction,State),
+		        format(Stream,"reaction('~w','~w',~w).~n",[Sample, Reaction,State])
+		    )),
+		sample_diagnosis(Sample,Class,_),
+		downcase_atom(Class,Low_Class),
+		format(Stream,"~w.~n~n",[Low_Class]),
+
+	        format(Stream,"end(model('~w')).~n~n",[Sample])
+	    )
+	),
+	close(Stream).
+
+warmr_models_all(File):-
+	open(File,append,Stream,[]),
+
+	forall(
+	    batch(_X,Sample),
+	    (
+		format(Stream,"begin(model('~w')).~n~nmicroarray('~w').~n~n",[Sample,Sample]),
+	        forall(
+		    (
+
+		    reaction(Reaction)
+		     ),
+		    (
+			tuple(Sample,Reaction,State),
+		        format(Stream,"reaction('~w','~w',~w).~n",[Sample, Reaction,State])
+		    )),
+		sample_diagnosis(Sample,Class,_),
+		downcase_atom(Class,Low_Class),
+		format(Stream,"~w.~n~n",[Low_Class]),
+
+	        format(Stream,"end(model('~w')).~n~n",[Sample])
+	    )
+	),
+	close(Stream).
+
+
+
+
+
+reaction(R):-
+	setof(R,Sample^State^tuple(Sample,R,State),Rs),
+	member(R,Rs).
+
+
+write_csv_to_screen:-
+	write('samples'),
+	foreach(reaction(R),(write(','),write(R))),
+	write(',class'),
+	writeln(''),
+	forall((sample(Sample),
+	       Sample\='GSM89060'), %problem with this as not in csv file
+
+		(   write(Sample),
+		    foreach(tuple(Sample,R,S),(write(','),write(S))),
+		    %class(Sample,Class),
+		    sample_diagnosis(Sample,Class,_),
+		    write(','),write(Class),writeln('')
+		)).
+
+write_csv_to_file(File):-
+	open(File,append,Stream,[]),
+	write(Stream,'samples'),
+	foreach(reaction(R),(write(Stream,','),write(Stream,R))),
+	write(Stream,',class'),
+	nl(Stream),
+	forall((sample(Sample),
+	       Sample\='GSM89060'), %problem with this as not in csv file
+
+		(   write(Stream,Sample),
+		    foreach(tuple(Sample,R,S),(write(Stream,','),write(Stream,S))),
+		    %class(Sample,Class),
+		    sample_diagnosis(Sample,Class,_),
+		    write(Stream,','),write(Stream,Class),nl(Stream)
+		)),
+	close(Stream).
+
+
+write_aleph_pos(File):-
+	open(File,append,Stream,[]),
+	    forall(
+	       (
+		 batch(_X,Sample),
+	         sample_diagnosis(Sample,'AC',_)
+	       ),
+
+	      (
+		format(Stream,"microarray('~w').~n",[Sample])
+	      )
+	    ),
+
+
+	close(Stream).
+
+
+
+write_aleph_neg(File):-
+	open(File,append,Stream,[]),
+	    foreach(
+		(
+		batch(_X,Sample),
+		sample_diagnosis(Sample,'SCC',_)
+	       ),
+
+	      (
+				format(Stream,"microarray('~w').~n",[Sample])
+	      )
+	    ),
+
+
+	close(Stream).
+
+
+
+batch(1,'GSM102447').
+batch(1,'GSM102449').
+batch(1,'GSM102451').
+batch(1,'GSM102455').
+batch(1,'GSM102507').
+batch(1,'GSM102512').
+batch(1,'GSM102548').
+batch(1,'GSM102553').
+batch(2,'GSM102555').
+batch(2,'GSM117610').
+batch(2,'GSM117629').
+batch(2,'GSM117632').
+batch(2,'GSM117763').
+batch(2,'GSM117770').
+batch(2,'GSM137910').
+batch(2,'GSM137912').
+batch(3,'GSM137916').
+batch(3,'GSM137931').
+batch(3,'GSM137945').
+batch(3,'GSM138002').
+batch(3,'GSM138003').
+batch(3,'GSM152594').
+batch(3,'GSM152609').
+batch(3,'GSM152624').
+batch(4,'GSM152670').
+batch(4,'GSM152681').
+batch(4,'GSM152757').
+batch(4,'GSM179786').
+batch(4,'GSM179827').
+batch(4,'GSM179918').
+batch(4,'GSM179951').
+batch(4,'GSM203641').
+batch(5,'GSM203643').
+batch(5,'GSM203699').
+batch(5,'GSM203732').
+batch(5,'GSM231874').
+batch(5,'GSM231885').
+batch(5,'GSM231897').
+batch(5,'GSM231899').
+batch(5,'GSM231907').
+batch(6,'GSM231950').
+batch(6,'GSM231952').
+batch(6,'GSM277678').
+batch(6,'GSM277695').
+batch(6,'GSM277696').
+batch(6,'GSM301680').
+batch(6,'GSM353885').
+batch(6,'GSM353933').
+batch(7,'GSM38100').
+batch(7,'GSM38103').
+batch(7,'GSM38104').
+batch(7,'GSM46817').
+batch(7,'GSM46824').
+batch(7,'GSM46833').
+batch(7,'GSM46850').
+batch(7,'GSM46868').
+batch(8,'GSM46884').
+batch(8,'GSM46936').
+batch(8,'GSM46941').
+batch(8,'GSM46973').
+batch(8,'GSM46976').
+batch(8,'GSM53167').
+batch(8,'GSM53170').
+batch(8,'GSM76585').
+batch(9,'GSM76587').
+batch(9,'GSM76590').
+batch(9,'GSM76595').
+batch(9,'GSM88962').
+batch(9,'GSM88997').
+batch(9,'GSM89046').
+
+

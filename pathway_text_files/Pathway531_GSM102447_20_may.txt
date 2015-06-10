@@ -1,0 +1,94 @@
+BiochemicalReaction2284#Association of LBP with LPS#REACT_6834#0
+BiochemicalReaction2287#Transfer of LPS onto TLR4#REACT_6795#0
+BiochemicalReaction2288#CD14:LPS binds CR3#REACT_150423#0
+BiochemicalReaction2289#MAL(TIRAP) binds PIP2-rich regions in the plasma membrane#REACT_150399#0
+BiochemicalReaction2290#Endocytosis of TLR4:MD2:LPS:CD14#REACT_121112#0
+BiochemicalReaction2291#Endocytosis of TRAM (TICAM2)#REACT_121217#0
+BiochemicalReaction2292#TLR4:MD2:LPS:CD14 recruits TRAM (TICAM2)#REACT_6808#0
+BiochemicalReaction2285#GPI-bound CD14 binds LPS#REACT_6902#0
+BiochemicalReaction2286#Secreted CD14 binds LPS#REACT_6843#0
+BiochemicalReaction2293#Activated TLR2/4 interacts with MAL(TIRAP)#REACT_121383#0
+BiochemicalReaction2294#Activated TLR2/4:MAL interacts with BTK#REACT_150418#0
+BiochemicalReaction2295#MAL is phosphorylated by BTK#REACT_120882#0
+BiochemicalReaction2296#MyD88 forms a complex with MAL:activated TLR2/4#REACT_6797#0
+BiochemicalReaction2297#MyD88 oligomerization within the complex of activated TLR:Mal:MyD88#REACT_25221#0
+BiochemicalReaction2298#IRAK4 binds to the activated TLR receptor:Mal:MyD88 complex#REACT_6975#0
+BiochemicalReaction2299#IRAK4 autophosphorylation in the complex with activated TLR:MyD88:Mal#REACT_25097#0
+BiochemicalReaction2300#IRAK1 or IRAK2 binds to the activated IRAK4 :activated TLR:MyD88:Mal complex#REACT_6929#0
+BiochemicalReaction2301#Phosphorylation of IRAK2 bound to the activated IRAK4:MyD88 oligomer:Mal:activated TLR complex#REACT_25213#0
+BiochemicalReaction2302#First phosphorylation of IRAK1 by IRAK4 bound to activated TLR:MyD88:Mal#REACT_6833#0
+BiochemicalReaction2303#Second phosphorylation of IRAK1 by IRAK4 bound to activated TLR:MyD88:Mal#REACT_6794#0
+BiochemicalReaction2304#Multiple IRAK1 autophosphorylation steps#REACT_6862#0
+BiochemicalReaction2305#TRAF6 binds to hp- IRAK1#REACT_6856#0
+BiochemicalReaction2306#TRAF6 binds to p-IRAK2#REACT_120733#0
+BiochemicalReaction2307#Dissociation of hp-IRAK1:TRAF6 from the activated TLR:oligo-Myd88:Mal:p-IRAK4 complex#REACT_6736#0
+BiochemicalReaction2308#Dissociation of p-IRAK2:TRAF6 from the activated TLR:oligo-Myd88:Mal:p-IRAK4 complex#REACT_121298#0
+BiochemicalReaction2214#TRAF6 binds MEKK1#REACT_6962#0
+BiochemicalReaction2209#IRAK2 induces TRAF6 oligomerization#REACT_25119#0
+BiochemicalReaction2210#Auto ubiquitination of oligo-TRAF6 bound to p-IRAK2#REACT_25022#0
+BiochemicalReaction2211#Activated TRAF6 synthesizes unanchored polyubiquitin chains#REACT_25362#0
+BiochemicalReaction2212#Activated TRAF6:p-IRAK2 interacts with TAK1 complex#REACT_24985#0
+BiochemicalReaction2213#Auto phosphorylation of TAK1 bound to p-IRAK2:pUb oligo-TRAF6: free K63 pUb:TAB1:TAB2/TAB3#REACT_25375#0
+BiochemicalReaction2205#Pellino binds hp-IRAK1:TRAF6#REACT_25142#0
+BiochemicalReaction2206#IRAK1 phosphorylates Pellino#REACT_25200#0
+BiochemicalReaction2207#Pellino ubiquitinates hp-IRAK1#REACT_24943#0
+BiochemicalReaction2208#NEMO subunit of IKK complex binds to activated IRAK1#REACT_25305#0
+BiochemicalReaction2215#Activated TAK1 mediates phosphorylation of the IKK Complex#REACT_6935#0
+BiochemicalReaction2216#Phospho-IKK Complex phosphorylates IkB within the IkB:NFkB Complex#REACT_6848#0
+BiochemicalReaction2217#Released NFkB complex is transported to nucleus#REACT_6906#0
+BiochemicalReaction2218#Activated TAK1 phosphorylates MKK4/MKK7#REACT_21367#0
+BiochemicalReaction2219#Phosphorylation of human JNKs by activated MKK4/MKK7#REACT_6896#0
+BiochemicalReaction2220#Activated human JNKs migrate to nucleoplasm#REACT_21385#1
+BiochemicalReaction2221#activated human TAK1 phosphorylates MKK3/MKK6#REACT_21338#0
+BiochemicalReaction2222#Phosphorylated MKK3/MKK6 migrates to nucleus#REACT_21299#0
+BiochemicalReaction2223#Activated human MKK3/MKK6 phosphorylates p38 MAPK complexed with MAPKAPK2 or MAPKAPK3#REACT_21395#0
+BiochemicalReaction2224##REACT_21375#0
+BiochemicalReaction2225#Nuclear export of human p38 MAPK mediated by its substrate MAPKAPK2 or 3#REACT_21358#0
+BiochemicalReaction51#Inactivation of MEK1 by p34cdc2#REACT_1836#1
+BiochemicalReaction52#MEK1 binds ERK-1#REACT_1780#0
+BiochemicalReaction53#MEK1 phosphorylates ERK-1#REACT_136#0
+BiochemicalReaction54#Dissociation of phospho-ERK-1:MEK1#REACT_1740#0
+BiochemicalReaction55#Dimerisation of phospho-ERK-1#REACT_1289#0
+BiochemicalReaction56#Nuclear translocation of phospho-ERK-1 dimer#REACT_1866#0
+BiochemicalReaction57#MEK2 binds ERK-2#REACT_495#0
+BiochemicalReaction58#MEK2 phosphorylates ERK-2#REACT_2247#0
+BiochemicalReaction59#Dissociation of phospho-ERK-2:MEK2#REACT_1019#0
+BiochemicalReaction60#Dimerisation of phospho-ERK-2#REACT_2196#0
+BiochemicalReaction61#Nuclear translocation of phospho-ERK-2 dimer#REACT_487#0
+BiochemicalReaction322#ERK1/2 activates ELK1#REACT_12406#0
+BiochemicalReaction323#ERK1/2 phosphorylates MSK1#REACT_12576#0
+BiochemicalReaction324#p38MAPK phosphorylates MSK1#REACT_12546#0
+BiochemicalReaction325#ERK1/2/5 activate RSK1/2/3#REACT_12487#1
+BiochemicalReaction326#ERK5 activates the transcription factor MEF2#REACT_12413#0
+BiochemicalReaction327#ERKs are inactivated by protein phosphatase 2A#REACT_12539#0
+BiochemicalReaction328#ERKs are inactivated by dual-specific phosphatases (DUSPs)#REACT_12439#1
+BiochemicalReaction329#MSK1 activates CREB#REACT_12631#0
+BiochemicalReaction330#MSK1 activates ATF1#REACT_12437#0
+BiochemicalReaction331#RSK1/2/3 phosphorylates CREB at Serine 133#REACT_12622#0
+BiochemicalReaction332#MAPKAPK2 phosphorylates CREB at Serine 133#REACT_12586#0
+BiochemicalReaction2226#Phosphorylated MAPKs phosphorylate ATF-2#REACT_6719#0
+BiochemicalReaction2227#Activated JNKs phosphorylate c-JUN#REACT_6716#1
+BiochemicalReaction2228#c-FOS activation by phospho ERK1/2#REACT_21251#0
+BiochemicalReaction2229#Formation of Activated Protein 1 (AP-1) complex. ATF2/c-JUN heterodimer.#REACT_6839#0
+BiochemicalReaction2230#Formation of Activated Protein 1 (AP-1) complex. cFOS/c-JUN heterodimer.#REACT_21404#1
+BiochemicalReaction2232#TRAM:TLR4:MD2:LPS:CD14 recruits TRIF (TICAM1)#REACT_6799#0
+BiochemicalReaction2233#Viral dsRNA:TLR3 recruits TRIF (TICAM1)#REACT_6919#0
+BiochemicalReaction2234#Negative regulator SARM binds to TRIF#REACT_150310#1
+BiochemicalReaction2235#TRAF3 binds to TRIF:activated TLR3/4 complex#REACT_121070#0
+BiochemicalReaction2236#Auto-ubiquitination of TRAF3#REACT_120820#0
+BiochemicalReaction2237#Recruitment of TBK1/IKK epsilon to K63-poly-Ub-TRAF3:TRIF:activated TLR3/TLR4 followed by their phosphorylation#REACT_25081#0
+BiochemicalReaction2238#IRF3/IRF7 recruitment to p-TBK1/p-IKK epsilon bound to the activated TLR#REACT_6917#0
+BiochemicalReaction2239#Phosphorylation of IRF-3/IRF7 and their release from the activated TLR complex#REACT_6728#0
+BiochemicalReaction2240#Dimerization of phosphorylated IRF3/IRF7#REACT_6793#0
+BiochemicalReaction2241#Dimerized phospho-IRF3/IRF7 is transported to the nucleus#REACT_6864#1
+BiochemicalReaction2242#TRIF:activated TLR3/TLR4 complex recruits RIP1#REACT_6713#0
+BiochemicalReaction2243#K63-linked ubiquitination of RIP1 bound to the activated TLR complex#REACT_6884#0
+BiochemicalReaction2244#Nemo subunit of IKK complex binds polyubiquinated RIP1#REACT_25373#0
+BiochemicalReaction2245#TLR3/4-induced ripoptosome assembly#REACT_150447#0
+BiochemicalReaction2246#Caspase-8 processing#REACT_150381#0
+BiochemicalReaction2247#RIP3 binds TRIF to mediate necroptosis#REACT_150365#0
+BiochemicalReaction2248#Activated TLR3/4:TRIF recruits TRAF6#REACT_24952#0
+BiochemicalReaction2249#Auto ubiquitination of TRAF6 bound to the activated TLR complex#REACT_25318#0
+BiochemicalReaction2250#Activated TLR:TRIF:K63-pUb-TRAF6 recruits TAK1complex#REACT_25261#0
+BiochemicalReaction2251#Activation of TAK1 complex bound to activated TLR#REACT_25288#0
+BiochemicalReaction2252#Phosphorylated TAK1 leaves activated TLR receptor complex#REACT_25183#0

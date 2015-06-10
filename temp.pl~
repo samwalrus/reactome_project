@@ -1,0 +1,32 @@
+%rdf(X,'http://www.biopax.org/release/biopax-level3.owl#xref','http://www.reactome.org/biopax/47/48887#UnificationXref31').
+%
+%
+%
+rdf_reaction(R):-
+	rdf(R,'http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://www.biopax.org/release/biopax-level3.owl#BiochemicalReaction').
+
+
+reaction_cross(R,X):-
+	rdf_reaction(R),
+	rdf(R,'http://www.biopax.org/release/biopax-level3.owl#xref',X).
+
+
+%'http://www.biopax.org/release/biopax-level3.owl#xref')
+
+x_ref_react_id(X,REACT_ID):-
+	rdf(X,'http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://www.biopax.org/release/biopax-level3.owl#UnificationXref'),
+	rdf(X,'http://www.biopax.org/release/biopax-level3.owl#db',literal(type('http://www.w3.org/2001/XMLSchema#string', 'Reactome'))),
+	rdf(X,'http://www.biopax.org/release/biopax-level3.owl#id', literal(type('http://www.w3.org/2001/XMLSchema#string', REACT_ID))).
+
+
+%rdf(X,'http://www.biopax.org/release/biopax-level3.owl#id',.
+
+
+reaction_reactome_id(Reactome_Id):-
+	rdf_reaction(Reactome_String),
+	reactome_string_id(Reactome_String,Reactome_Id).
+
+id_stable_reactions_fast(Reactome_Id,Stable):-
+       atom_concat('http://www.reactome.org/biopax/47/48887#', Reactome_Id, Reactome_String_Name),
+       reaction_cross(Reactome_String_Name,X),
+       x_ref_react_id(X,Stable).
