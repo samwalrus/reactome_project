@@ -14,6 +14,7 @@
 :-edit('save.pl').
 :-edit('preprocessed_module.pl').
 :-edit('lung_cancer.pl').
+:-edit('interface.pl').
 
 
 :-www_open_url('http://localhost:4040/').
