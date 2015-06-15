@@ -1,4 +1,117 @@
-\documentclass[•]{book}
+\documentclass[•]{article}
 \begin{document}
-hello
-\end{document}
+
+	\title{An Application of ILP to Systems Biology}
+	\author{Samuel R Neaves}
+	\date{June 2015}
+	\maketitle
+	
+	%The following line titles the abstract as blank
+	\renewcommand{\abstractname}{}
+	\begin{abstract}
+	\textbf{Abstract.} We show how a logical aggregation method combined 
+	with propositionalization methods can construct novel structured 
+	biological features for 	classification and ranking tasks in 
+	systems biology. 
+	\end{abstract}
+	\section{Introduction and Background}
+	This document describes a method to use Inductive Logic Programming
+	(ILP) techniques to mine structured biological data. 
+	The biological problem addressed in this paper to demonstrate the
+	appropriateness of ILP to the task of classifying Lung Cancer samples
+	For details about the motivation of this task please see {DREAM CHALLEENGE 
+	REF}
+	In machine learning terms this can be formalised as a classification task
+	or more generally as a ranking task. 
+	Often bioinformatic research is concerned with identifying differences
+	between sets of samples. It is common for this to be done using an 
+	attribute value representation where samples are vectors of probe 
+	measurements. Differences are then shown as lists of genes.
+	This ignores known relations.
+	The ILP community has often been seen as appropriate to biological 
+	data before 1.GO subgroups,2 Network construction and amendment. 3 
+	classifying samples.
+	This work is most similar to 3. 
+	In "Using Bio-Pathways in Relational Learning 2008" the authors propose
+	using fully coupled fluxes. An FCF is the longest chain FCF is the 
+	longest    possible chain of vertices in which non-zero vertex activation
+	implies a certain (non-zero) activation in its successors.
+	Researchers have used aggregation methods such as avg and svd.
+	Machine Learning is applied to a task, the output of a machine learning 
+	is a model. The appropriateness of the model format to the task.
+	Biological researchers are interested in structured outputs with network
+	motifs and consistency modelling research areas. 
+	In some sense classification is not the task. 
+	\subsection{GEO Data}
+	
+	\subsection{Biological Pathway Data}
+	Reactome is a collection of manually curated peer reviewed pathways.
+	Reactome is made availble as an RDF xml file. Which allows for simple 
+	passing using SWI-Prologs semantic web libraries. 
+	  
+	\section{Method}
+	The idea is to use structural information as	to enable an 
+	appropriate level of abstraction for the interpretation of the 
+	model to be insightful for a biologist. 
+	In this work we use a high level logical abstraction of the idea of 
+	a biological pathway. 
+	Directed Networks of genes and entities are not appropriate, either 
+	bipartite graphs or hypergraphs are required.  
+	We extract a directed reaction centric graph. In this way we 
+	address the problem identified in X. Boolean networks are a common
+	abstraction, but these normally are at the gene or protein level
+	not at the reaction level. To use a boolean network abstraction on
+	a reaction network, we apply a logical aggregation method 
+	  \subsection{Barcode}
+	  Barcode is a tool for applying learnt thresholds to microarray data
+	  This gives a binary value for each probe in the microarray. This tool 
+	  is implemented as a R package.
+	  \subsection{Logical Aggregation}
+	  Using the Reactome RDF graphs and biological 
+	  Linking Reactions
+	  Removing trivial entities. 
+	  \subsection{Propositionalization}
+	  It has been recommend to try prop methods first when attempting ILP
+	  
+	     \subsubsection{Warmr}
+	     Warmr is the first order equivalent of item set mining.
+	     It can be used as propo method by searching for frequent 
+	     queries in the two classes, and taking the set difference 
+	     (not sure if this would work)
+	     We can define predicates such as path or loop
+	     As warmr is not prunning by classificaiton accurracy
+	     it can quickly build to an intractable search.
+	     
+	     \subsubsection{Tree Liker}
+	     Tree liker is a modern ILP tool that implements a number of algos
+	     it has been shown to produce long features, which are desirable for 
+	     this task.
+	     \subsubsection{Combined Search}
+	     
+	     
+	  \subsection{Ranking and Classification}
+	  As we are interested in producing comprehensible models, we limit
+	  our experiments to rule and tree building algorithms.
+	  We use 
+	     \subsubsection{Appropriate Metrics}
+	     Dream challenge uses the following metrics
+	     Flach et al recommend these metrics. 
+	     
+	\section{Results}
+	ROC curve
+	Features Found and models built.
+	\section{Discussion}
+	This work has shown the appropriateness of using ILP methods
+	to mine the abundance of highly structured biological data.
+	Using this method we have identified differences in pathway activation
+	patterns that go beyond the standard analysis of differentially expressed
+	genes, enrichment analysis, gene feature ranking and pattern mining for 
+	common network motifs (by using pre-defined background knowledge 
+	predicate in 	warmr such as onpath. The use of logical aggregation to a  
+	reaction graph 
+	simplifies the search for hypothesises to an extent where all pathways
+	can be searched in reasonable time. 
+	The extension of treeliker found features with warmr to connect loops is
+	believed to be novel. This allows for the finding of loops with additional
+	properties in a reasonable amount of time. 
+\end{document} 
