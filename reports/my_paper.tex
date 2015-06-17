@@ -21,11 +21,11 @@
 \usepackage{amssymb}
 \setcounter{tocdepth}{3}
 \usepackage{graphicx}
-
+\usepackage{cite}
 \usepackage{url}
-\urldef{\mailsa}\path|{alfred.hofmann, ursula.barth, ingrid.haas, frank.holzwarth,|
-\urldef{\mailsb}\path|anna.kramer, leonie.kunz, christine.reiss, nicole.sator,|
-\urldef{\mailsc}\path|erika.siebert-cole, peter.strasser, lncs}@springer.com|    
+\urldef{\mailsa}\path|{samuel.neaves}@kcl.ac.uk|
+
+   
 \newcommand{\keywords}[1]{\par\addvspace\baselineskip
 \noindent\keywordname\enspace\ignorespaces#1}
 
@@ -33,11 +33,10 @@
 
 \mainmatter  % start of an individual contribution
 
-% first the title is needed
-\title{Lecture Notes in Computer Science:\\Authors' Instructions
-for the Preparation\\of Camera-Ready
-Contributions\\to LNCS/LNAI/LNBI Proceedings}
 
+\title{An Application of ILP to Systems Biology}
+% oe Identifying Pathway Activation Patterns- For Classification
+%ILP identifies pathway activation patterns. 
 % a short form should be given in case it is too long for the running head
 \titlerunning{Lecture Notes in Computer Science: Authors' Instructions}
 
@@ -47,25 +46,18 @@ Contributions\\to LNCS/LNAI/LNBI Proceedings}
 % their surnames. This ensures that the names appear correctly in
 % the running heads and the author index.
 %
-\author{Alfred Hofmann%
-\thanks{Please note that the LNCS Editorial assumes that all authors have used
-the western naming convention, with given names preceding surnames. This determines
-the structure of the names in the running heads and the author index.}%
-\and Ursula Barth\and Ingrid Haas\and Frank Holzwarth\and\\
-Anna Kramer\and Leonie Kunz\and Christine Rei\ss\and\\
-Nicole Sator\and Erika Siebert-Cole\and Peter Stra\ss er}
+\author{Samuel R Neaves}
 %
 \authorrunning{Lecture Notes in Computer Science: Authors' Instructions}
 % (feature abused for this document to repeat the title also on left hand pages)
 
 % the affiliations are given next; don't give your e-mail address
 % unless you accept that it will be published
-\institute{Springer-Verlag, Computer Science Editorial,\\
-Tiergartenstr. 17, 69121 Heidelberg, Germany\\
+\institute{Deparment of Informatics King's College London,\\
+Strand, London, UK\\
 \mailsa\\
-\mailsb\\
-\mailsc\\
-\url{http://www.springer.com/lncs}}
+%\mailsc\\
+\url{http://www.kcl.ac.uk}}
 
 %
 % NB: a more complex sample for affiliations and the mapping to the
@@ -80,102 +72,110 @@ Tiergartenstr. 17, 69121 Heidelberg, Germany\\
 
 
 \begin{abstract}
-The abstract should summarize the contents of the paper and should
-contain at least 70 and at most 150 words. It should be written using the
-\emph{abstract} environment.
-\keywords{We would like to encourage you to list your keywords within
-the abstract section}
+We show how a logical aggregation method combined 
+with propositionalization methods can construct novel structured biological features for 	classification and ranking tasks in systems biology. 
+
+\keywords{Biological Pathways, Reactome, RDF, Barcode, Logical Aggregation, Warmr, Treeliker, ILP.}
 \end{abstract}
 
 
-\section{Introduction}
+\section{Introduction and Background}
 
-You are strongly encouraged to use \LaTeXe{} for the
-preparation of your camera-ready manuscript together with the
-corresponding Springer class file \verb+llncs.cls+. Only if you use
-\LaTeXe{} can hyperlinks be generated in the online version
-of your manuscript.
+This paper describes a method to use Inductive Logic Programming(ILP) techniques to mine structured biological data. The biological problem addressed in this paper is the task of  understanding the system perturbations in different types of Lung Cancer; for details about the motivation of this task please see  ~\cite{Nobody06}.
 
-The \LaTeX{} source of this instruction file for \LaTeX{} users may be
-used as a template. This is
-located in the ``authors'' subdirectory in
-\url{ftp://ftp.springer.de/pub/tex/latex/llncs/latex2e/instruct/} and
-entitled \texttt{typeinst.tex}. There is a separate package for Word 
-users. Kindly send the final and checked source
-and PDF files of your paper to the Contact Volume Editor. This is
-usually one of the organizers of the conference. You should make sure
-that the \LaTeX{} and the PDF files are identical and correct and that
-only one version of your paper is sent. It is not possible to update
-files at a later stage. Please note that we do not need the printed
-paper.
+A basic pipe line for this kind of task is to identify differentially expressed genes, and then in subsequent analysis look for how these genes may be related and subject them to further research.  Alternatively the task can be formalised as a classification task (of samples) or more generally as a ranking task. Remembering that classification is often not the true task -The classification performance is used as a measure of the quality of the identified differences. Classification might not be the true task as the class of a sample may already be known. (For example where the biopsy is taken from may indicate the class). When classification models are built it is common for this to be done using an attribute value representation where samples are vectors of gene expressions. The researchers are interested in the genes that are most important in the constructed model. Genes that are identified in this manner may be  different to a simple list of differently expressed genes as the constructed model may have found dependencies on genes which are not highly differently expressed. 
 
-We would like to draw your attention to the fact that it is not possible
-to modify a paper in any way, once it has been published. This applies
-to both the printed book and the online version of the publication.
-Every detail, including the order of the names of the authors, should
-be checked before the paper is sent to the Volume Editors.
+Whether researchers have identified a list of genes through differential expression analysis or by taking top features from a classification model, they have yet to take into account known relations between the genes. Therefore  a common next step is for researchers to look for connections between these genes, for example by performing Gene Set Enrichment Analysis(GSEA). These gene sets define a relation between the genes,  examples of gene sets include: functionally defined sets, cellular location defined sets, pathway defined sets, or network defined topological sets (These can be identified by community detection in a gene-network).
 
-\subsection{Checking the PDF File}
+Past ILP research has integrated the two steps of finding differently expressed genes and GSEA by using relational subgroup discovery. These have used the hierarchical Gene Ontology to relate genes and has the advantage of being able to construct novel sets by sharing variables across predicates that define the set. Other ways researchers have tried to use known relations include simple attempts to aggregate across the set of genes by taking an average expression or other measure such as the SVD, see X for a review of these methods.  In most of these methods it is common to ignore the detailed relations between entities in a pathway, the pathway is treated as an unstructured collection of genes. Only do topologically defined sets take advantage of any known internal relations. But often these create crude clusters of genes, and do not follow biological intuition of information flow through the pathway.In addition the chosen network representation is often inappropriate for pathway analysis because of the problem discussed in [X].
 
-Kindly assure that the Contact Volume Editor is given the name and email
-address of the contact author for your paper. The Contact Volume Editor
-uses these details to compile a list for our production department at
-SPS in India. Once the files have been worked upon, SPS sends a copy of
-the final pdf of each paper to its contact author. The contact author is
-asked to check through the final pdf to make sure that no errors have
-crept in during the transfer or preparation of the files. This should
-not be seen as an opportunity to update or copyedit the papers, which is
-not possible due to time constraints. Only errors introduced during the
-preparation of the files will be corrected.
+Therefore a major limitation of the current approaches is that the models constructed are limited to being constructed from either genes or crude aggregates of sets of genes. But biological researchers are not only interested in lists of genes expression difference and how those genes in particular relate. More general pathway activation patterns are also of interest. Two examples are consistency modelling and network motif finding.
+In consistency modelling the pattern depicted in figure 1 is matched against gene regulatory networks to check for consistency and Answer Set Programming techniques are used to amend the pathways to remove the inconsistency. Similar work has been done in ILP where biological pathways have been constructed and amended. 
+ 
+In conventional network motif finding, again the biological intuition of information flow is ignored and it uncommon to either take into account the class of the network sample or to include uninstantiated variables in the search for patterns. 
 
-This round of checking takes place about two weeks after the files have
-been sent to the Editorial by the Contact Volume Editor, i.e., roughly
-seven weeks before the start of the conference for conference
-proceedings, or seven weeks before the volume leaves the printer's, for
-post-proceedings. If SPS does not receive a reply from a particular
-contact author, within the timeframe given, then it is presumed that the
-author has found no errors in the paper. The tight publication schedule
-of LNCS does not allow SPS to send reminders or search for alternative
-email addresses on the Internet.
+In contrast to the work on consistency modelling, in this work we assume the pathways are in some sense correct and we are looking at individuals samples expression patterns mapped on to the network. This work is most similar to  "Using Bio-Pathways in Relational Learning 2008" where the authors propose using fully coupled fluxes. An FCF is the longest possible chain of vertices in which non-zero vertex activation implies a certain (non-zero) activation in its successors.
 
-In some cases, it is the Contact Volume Editor that checks all the final
-pdfs. In such cases, the authors are not involved in the checking phase.
+\section{Aim}
+The aim is to identify pathway activation patterns that differ between biological samples, in order to give a biologist more information. This is achieved by using structural pathway information to build first order features that can be used to construct classification and ranking models, which will provide an appropriate level of abstraction for the interpretation of the model to be insightful for a biologist. 
+
+	  
+\section{Method}
+\subsection{GEO Data}
+GSE2109. This has 38 SCC and 33 AC Samples. 
+	
+\subsection{Biological Pathway Data}
+Reactome is a collection of manually curated peer reviewed pathways. Reactome is made available as an RDF Xml Biopax level 3 file. This allows for simple passing using SWI-Prolog's semantic web libraries. 
+In this work we use a high level logical abstraction of the idea of a biological pathway. In biological research it is common to see many types of biological networks represented by mathematical graphs. When considering biological pathways simple directed networks of genes and proteins are not appropriate, because this formalism does not adequately model the dependencies of activation patterns- either bipartite graphs or hypergraphs are required. We address this problem by using a directed reaction centric graph extracted from Reactome. In this way we address the problem identified in X.  Boolean networks are a common abstraction, but these are normally applied at the gene or protein level not at the reaction level. To use a boolean network abstraction on a reaction network, we apply a logical aggregation method from the measured probes in the microarray to reactions as defined in Reactome. 
+\subsection{Barcode}
+The first step is to binarize the probe values.Barcode is a tool for applying learnt thresholds to microarray data. This gives a binary value for each probe in the microarray. This tool is implemented as a R package.
+\subsection{Logical Aggregation} 
+Once we have binary probe values, we can use the structure provided by
+the Reactome RDF graphs and our biological understanding to build Reaction level features.
+ 
+Reactom defines reactions with entities, substrates, enzymes and products.
+Each reaction has a set of inputs and set of outputs, in addition a reaction may be controlled(activated or inhibited) by an entity. 
+Entities in Reactome include protein complexes and sets. 
+A protein complex or protein set may itself include lower complexes or sets. This gives the input to a reaction a kind of tree structure. For the logical aggregation step we interpret this structure as a simple logical circuit. There can be a many to many relation between probes and proteins. 
+
+In this way we can say that a reaction 'can proceed' if and only if, the input circuit evaluates to true. If a reaction 'can proceed' then we say that it is 'on' otherwise we say that it is 'off'. 
+\subsection{Network Extraction}
+Linking Reaction Removing trivial entities.
+\subsection{Propositionalization}
+It has been recommend to try prop methods first when attempting ILP
+\subsubsection{Warmr}
+Warmr is the first order equivalent of item set and association rule mining.It can be used as propositionalization method by searching for frequent queries in the two classes, and taking the set difference (not sure if this would work). An advantage of using Warmr is that it is easy to define background predicates for relevant concepts. For example a path or loop of all 'on' reactions. As Warmr does not prune by classification it however can quickly build to an intractable search with many irrelevant or similar queries/features built. 
+	     
+\subsubsection{Tree Liker}
+Tree liker is a modern ILP tool that implements a number of algorithms it has been shown to produce long features, by building features bottom up in blockwise manner. This is a desirable trait for  this task as longer features will give more information to a biologist. A limitation is that the features are 'tree like' which means there can be no cycles in the variables. 
+Treeliker does not require a variable for the sample as this is done automatically. Treeliker unlike Warmr does not support explicit background knowledge and therefore all relevant relations need to be preprocessed using prolog.
+ 
+\noindent
+%\it{Illustrative Tree Liker Template}
+\begin{verbatim}
+  set(output_type,single)
+  set(examples,'Pathway963.txt')
+  set(template,[reaction(-R1,#onoroff),link(+R1,-R2,!T1),
+   reaction(+R2,#onoroff),link(+R2,-R3,!T2),reaction(+R3,#onorff),
+   link(!RA,-R4,!T3),link(+R4,!RB,!T4),link(+R1,-R2,#T1),
+   link(+R2,-R3,#T2),link(!RA,-R4,#T3),link(+R4,!RB,#T4)])
+  set(output, Pathway963.arff)
+  work(yes)
+\end{verbatim}
+
+\noindent
+%\it{Example Tree Liker found feature}
+\begin{verbatim}
+  reaction(A, 0), link(A, B, follows), reaction(B, 1), link(B, C, _),    
+  reaction(C, 0), link(A, D, activation), reaction(D, 0).
+\end{verbatim}
+
+
+
+\subsubsection{Combined Search}
+	     
+\subsection{Ranking and Classification}
+As we are interested in producing comprehensible models, we limit our experiments to rule and tree building algorithms.We use 
+\subsubsection{Appropriate Metrics}
+Dream challenge uses the following metrics
+Flach et al recommend these metrics. 
+	     
+\section{Results}
+ROC curve
+Features Found and models built.
+\section{Discussion}
+This work has shown the appropriateness of using ILP methods to mine the abundance of highly structured biological data.Using this method we have identified differences in pathway activation patterns that go beyond the standard analysis of differentially expressed genes, enrichment analysis, gene feature ranking and pattern mining for common network motifs (by using pre-defined background knowledge predicate in Warmr such as onpath. The use of logical aggregation to a  reaction graph simplifies the search for hypothesises to an extent where all pathways can be searched in reasonable time. The extension of Treeliker found features with Warmr to connect loops is believed to be novel. This allows for the finding of loops with additional properties in a reasonable amount of time.  
+
+
 
 \subsection{Additional Information Required by the Volume Editor}
 
 If you have more than one surname, please make sure that the Volume Editor
 knows how you are to be listed in the author index.
 
-\subsection{Copyright Forms}
 
-The copyright form may be downloaded from the ``For Authors"
-(Information for LNCS Authors) section of the LNCS Website:
-\texttt{www.springer.com/lncs}. Please send your signed copyright form
-to the Contact Volume Editor, either as a scanned pdf or by fax or by
-courier. One author may sign on behalf of all of the other authors of a
-particular paper. Digital signatures are acceptable.
 
-\section{Paper Preparation}
 
-Springer provides you with a complete integrated \LaTeX{} document class
-(\texttt{llncs.cls}) for multi-author books such as those in the LNCS
-series. Papers not complying with the LNCS style will be reformatted.
-This can lead to an increase in the overall number of pages. We would
-therefore urge you not to squash your paper.
-
-Please always cancel any superfluous definitions that are
-not actually used in your text. If you do not, these may conflict with
-the definitions of the macro package, causing changes in the structure
-of the text and leading to numerous mistakes in the proofs.
-
-If you wonder what \LaTeX{} is and where it can be obtained, see the
-``\textit{LaTeX project site}'' (\url{http://www.latex-project.org})
-and especially the webpage ``\textit{How to get it}''
-(\url{http://www.latex-project.org/ftp.html}) respectively.
-
-When you use \LaTeX\ together with our document class file,
-\texttt{llncs.cls},
-your text is typeset automatically in Computer Modern Roman (CM) fonts.
 Please do
 \emph{not} change the preset fonts. If you have to use fonts other
 than the preset fonts, kindly submit these with your files.
@@ -393,6 +393,10 @@ journal articles \cite{jour}, an LNCS chapter \cite{lncschap}, a book
 Please note that proceedings published in LNCS are not cited with their
 full titles, but with their acronyms!
 
+
+\bibliography{mybib}{}
+\bibliographystyle{plain}
+
 \begin{thebibliography}{4}
 
 \bibitem{jour} Smith, T.F., Waterman, M.S.: Identification of Common Molecular
@@ -442,7 +446,7 @@ Here is a checklist of everything the volume editor requires from you:
 \item A final PDF file
 \item A copyright form, signed by one author on behalf of all of the
 authors of the paper.
-\item A readme giving the name and email address of the
+\item A read me giving the name and email address of the
 corresponding author.
 \end{itemize}
 \end{document}
