@@ -111,7 +111,7 @@ Therefore a major limitation of the current classification approaches is that th
 In contrast to the work on consistency modelling, in this work we assume the pathways are in some sense correct and we are looking at individuals sample expression patterns mapped on to the network. This work is most similar to  \citep{holec2008using} in which the authors propose using Fully Coupled Fluxes as features. An FCF is the longest possible chain of vertices in which non-zero vertex activation implies a certain (non-zero) activation in its successors.
 
 %\section{Aim}
-The aim of this paper is to identify pathway activation patterns that differ between biological samples of different classes, in order to give a biologist different information than models built from simple gene features. 
+%The aim of this paper is to identify pathway activation patterns that differ between biological samples of different classes, in order to give a biologist different information than models built from simple gene features. 
 
 	  
 \section{Method}
@@ -152,7 +152,7 @@ The best classifiers achieve 80 \% accuracy in 10 fold cross validation.
 {\it{Example Warmr found feature}}
 
 \begin{verbatim}
-  microarray(A),reaction(A,B,1),reaction(A,C,0),link(C,B,D),link(B,C,E).
+microarray(A),reaction(A,B,1),reaction(A,C,0),link(C,B,D),link(B,C,E).
 \end{verbatim}
 \noindent 
 This is a simple cyclical feature, the variable A matches one sample. 
@@ -162,31 +162,31 @@ This is a simple cyclical feature, the variable A matches one sample.
 {\it{Example Tree Liker found feature}}
 
 \begin{verbatim}
-  reaction(A, 0), link(A, B, follows), reaction(B, 1), link(B, C, _),    
-  reaction(C, 0), link(A, D, activation), reaction(D, 0).
+reaction(A, 0), link(A, B, follows), reaction(B, 1), link(B, C, _),    
+reaction(C, 0), link(A, D, activation), reaction(D, 0).
 \end{verbatim}
 \noindent 
-This is a longer tree liker feature, -notice treeliker does not require a variable for the sample.  
+This is a longer tree liker feature -notice Treeliker does not require a variable for the sample.  
 \newline
 
 \noindent
 {\it{Example combined method found feature}}
 \begin{verbatim}
-  microarray(A),reaction(A,B,0),link(B,C,follows),reaction(A,C,1),
-  link(C,D,E),reaction(A,D,0),link(B,F,activation),reaction(A,F,1),
-  link(F,D,E),link(D,G,E),reaction(A,G,0)
+microarray(A),reaction(A,B,0),link(B,C,follows),reaction(A,C,1),
+link(C,D,E),reaction(A,D,0),link(B,F,activation),reaction(A,F,1),
+link(F,D,E),link(D,G,E),reaction(A,G,0)
 \end{verbatim}
 \noindent
 With the structured features found, we were able to achieve a comparable 'accuracy' to that of a model built with raw expression values. 
 
 \section{Discussion}
-This work has shown the appropriateness of using ILP methods to mine the abundance of highly structured biological data.Using this method we have identified differences in pathway activation patterns that go beyond the standard analysis of differentially expressed genes, enrichment analysis, gene feature ranking and pattern mining for common network motifs. We have also demonstrated the use of logical aggregation to a  reaction graph and how this simplifies the search for hypothesises to an extent where searching all pathways is tractable. The extension of Treeliker found features with Warmr to connect cycles is believed to be novel. This enables the finding of long cyclical features. 
-
-
-
-\subsubsection*{Acknowledgments.} Thanks to ...
+This work has shown the appropriateness of using ILP methods to mine the abundance of highly structured biological data.Using this method we have identified differences in pathway activation patterns that go beyond the standard analysis of differentially expressed genes, enrichment analysis, gene feature ranking and pattern mining for common network motifs. We have also demonstrated the use of logical aggregation to a  reaction graph and how this simplifies the search for hypothesises to an extent where searching all pathways is tractable. The extension of Treeliker found features with Warmr to connect cycles is believed to be novel. This enables the finding of long cyclical features which are of interest to biologists. 
 \newline
 \newline
+
+
+%\subsubsection*{Acknowledgments.} Thanks to ...
+
 
 \begingroup
 \let\clearpage\relax
