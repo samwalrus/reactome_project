@@ -37,13 +37,13 @@
 
 \mainmatter  % start of an individual contribution
 
-
-\title{ILP Identifies Pathway Activation Patterns}
+%
+\title{Using ILP to Identify Pathway Activation Patterns in Systems Biology}
 % oe Identifying Pathway Activation Patterns- For Classification
 %ILP identifies pathway activation patterns. 
 %n Application of ILP to Systems Biology
 % a short form should be given in case it is too long for the running head
-\titlerunning{ILP Identifies Pathway Activation Patterns}
+\titlerunning{Using ILP to Identify Pathway Activation Patterns in Systems Biology}
 
 % the name(s) of the author(s) follow(s) next
 %
@@ -53,7 +53,7 @@
 %
 \author{Samuel R Neaves, Dr Sophia Tsoka}
 %
-\authorrunning{ILP Identifies Pathway Activation Patterns}
+\authorrunning{Using ILP to Identify Pathway Activation Patterns in Systems Biology}
 % (feature abused for this document to repeat the title also on left hand pages)
 
 % the affiliations are given next; don't give your e-mail address
@@ -71,15 +71,15 @@ Strand, London, UK\\
 % "llncs.dem" accompanies the document class "llncs.cls".
 %
 
-\toctitle{ILP Identifies Pathway Activation Patterns}
+\toctitle{Using ILP to Identify Pathway Activation Patterns in Systems Biology}
 \tocauthor{Samuel R Neaves}
 \maketitle
 
 
 \begin{abstract}
-We show a logical aggregation method that combined with propositionalization methods can construct novel structured biological features for classification and ranking tasks in Systems Biology. 
+We show a logical aggregation method that, combined with propositionalization methods, can construct novel structured biological features from gene expression data, to gain understanding of pathway mechanisms, for instance those associated with a particular disease. 
 
-\keywords{Biological Pathways, Reactome, RDF, Barcode, Logical Aggregation, Warmr, Treeliker, ILP.}
+\keywords{ILP, Biological pathways, Warmr, Treeliker, Reactome, Barcode, Logical aggregation, RDF.}
 \end{abstract}
 
 
@@ -88,14 +88,14 @@ We show a logical aggregation method that combined with propositionalization met
 
 %This paper describes a method to use Inductive Logic Programming(ILP) techniques to mine structured biological data. 
 %Overview
-In the field of Systems Biology researchers are often interested in identifying perturbations within a biological system that are different across experimental conditions. In this paper we use the example of identifying these perturbations in two types of Lung Cancer.
+In the field of Systems Biology researchers are often interested in identifying perturbations within a biological system that are different across experimental conditions. In this paper we use the example of identifying differences in perturbations between two types of Lung Cancer.
 %To clarify we are looking to identify differences rather than building a diagnostic tool for Lung Cancer.
 
 % typical approach
 A typical pipeline for this kind of task has three distinct stages. The first stage is to use a technology such as a microarray or RNAseq to measure gene expression across the genome in a number of samples from each of the experimental conditions. 
-The second stage is to identify a subset of genes whose expression values correlate with the conditions.
-Stage 2 is commonly achieved by performing differential expression analysis and ranking genes by their fold change values or other statistic. A statistical test is then used to identify the relevant set to take forward to stage 3. 
-Alternatively for stage 2 researchers may train a model using machine learning to classify samples into experimental conditions, often using an attribute value representation where features are a vector of gene expression values. 
+The second stage is to identify a subset of genes whose expression values differ across conditions.
+This stage is commonly achieved by performing differential expression analysis and ranking genes by a statistic such as fold change values. A statistical test is then used to identify the relevant set to take forward to stage 3. 
+Alternatively for stage 2 researchers may train a model using machine learning to classify samples into experimental conditions, often using an attribute value representation where the features are a vector of gene expression values. 
 This approach has the advantage that the constructed model may have found dependencies between genes which would not have been identified otherwise.
 %(experimental conditions). 
 Researchers will use the \lq top\rq\ features from the model to identify the set of genes to take on to stage 3. 
@@ -104,80 +104,125 @@ Researchers will use the \lq top\rq\ features from the model to identify the set
 
 %We note classification is often not the true task -the classification performance is used as a measure of the quality of the identified differences. Classification might not be the true task as the class of a sample may already be known - for example where the biopsy is taken from may indicate the class. 
 %typical approach stage 2
-In stage 3  researchers look for connections between these genes, for example by performing Gene Set Enrichment Analysis(GSEA) \citep{subramanian_gene_2005}. Here the set of identified genes are compared with predefined sets of genes. The predefined sets of genes indicate a known relation. For example having a related function, existing in the same location in the cell or taking part in the same pathway. A further way a set could be defined is a topological set, which takes into account finer grained internal relations to define a set. For example a topological set could be identified by community detection in a gene regulatory network.
+In stage 3  researchers look for connections between these genes, for example by performing Gene Set Enrichment Analysis (GSEA) \citep{subramanian_gene_2005}. Here the set of genes identified in stage 2 are compared with predefined sets of genes. Each predefined set of genes indicate a known relation. For example having a related function, existing in the same location in the cell or taking part in the same pathway. 
 
 %related relational work
-To bring background knowledge of relations into the model building process, past ILP research \citep{gamberger_induction_2004} integrated stage 2: finding differently expressed genes and stage 3: GSEA. This was done by using Relational Subgroup Discovery. RSD has the advantage of being able to construct novel sets by sharing variables across predicates that define the sets. For example a set could be defined as the genes that have been annotated with two Gene Ontology terms.  Other ways researchers have tried to integrate the use of known relations is by adapting the classification approach. New features are built by aggregating across a predefined set of genes - for example by taking an average expression value for a pathway, see ~\citep{holec_comparative_2012} for a review of these methods.
+To bring background knowledge of relations into the model building process, past ILP research \citep{gamberger_induction_2004} integrated stage 2: finding differentially expressed genes and stage 3: GSEA, into a single step. This was achieved using Relational Subgroup Discovery, which has the advantage of being able to construct novel sets by sharing variables across predicates that define the sets. For example a set could be defined as the genes that have been annotated with two Gene Ontology terms.  
 
-In most of these methods it is common to ignore the detailed relations between entities in a pathway, the pathway is treated as an unstructured set of genes. Only do topologically defined sets take advantage of any known internal relations. On the other hand these often create crude clusters of genes, and do not follow biological intuition of information flow through the pathway. e.g. by using an inappropriate network abstraction or failing to adapt the clustering method to work on an appropriate network abstraction. When considering biological pathways simple directed networks of genes and proteins are not appropriate. This is because this formalism does not adequately model the dependencies of biochemical reactions i.e. bipartite graphs or hypergraphs are required. See \citep{whelan2011representation} for more details on this. 
+Other ways researchers have tried to integrate the use of known relations is by adapting the classification approach. New features are built by aggregating across a predefined set of genes - for example by taking an average expression value for a pathway, see ~\citep{holec_comparative_2012} for a review of these methods.
+A major limitation of current classification approaches is that the models are constructed from either genes or crude aggregates of sets of genes, and so ignore the detailed relations between entities in a pathway. 
+In order to incorporate more complex relations a network representation is needed.
+It is important that this representation is appropriate such that biological relations are adequately represented.
+For example a simple directed network of genes and proteins does not adequately represent the complexities of biochemical pathways such as the dependencies of biochemical reactions. To do this bipartite graphs or hypergraphs can be used (see \citep{whelan2011representation} for more details). 
 
-A major limitation of the current classification approaches is that the models are constructed from either genes or crude aggregates of sets of genes. However biologists are not only interested in these kind of models. More general pathway activation patterns are also of interest.
+One way to incorporate more complex relations is by creating topologically defined sets, for example by performing community detection in a gene regulatory network.
+However, this approach can create crude clusters of genes, that do not account for important known biological concepts.
+Biologists are also interested in complex biological interactions rather than just sets of genes, as we now describe. 
+
+
+Network motif and frequent subgroup mining  \citep{kim_biological_2011} are methods that can look for structured patterns in biological networks. However, in these approaches the patterns are often described in a language which is not as expressive as first order logic. This means they are unable to find patterns with uninstantiated variables, or with relational concepts such as paths or loops.
+%It is also the case that motifs or frequent subgraphs are rarely identified for the purpose of discrimination in a classification task.
+For example, in Figure~\ref{fig1}a we show a toy example of four instantiations of the same graph, three in class A and 1 in class B.
+A frequent pattern distinguishing between the classes may be a chain of three on reactions. 
+This may be represented in Prolog as \emph{on(a),on(X),on(c),link(a,X),link(X,c)}. However, 
+network motif finding can only work with  patterns such as \emph{$a_{on} \rightarrow b_{on} \rightarrow c_{on}$}, and hence would not be able to find the repeated pattern. 
+
+
+\begin{figure}
+\centering
+   \includegraphics[width=0.8\textwidth]{graph.pdf}
+   \caption{Example graphs. Node color indicates expression activity. Yellow: on; blue: off.}
+   \label{fig1}
+\end{figure}
+
+
+To our knowledge only one previous work has looked to use ILP for this task \citep{holec2008using}.
+Here the authors propose identifying features consisting of the longest possible chain of vertices in which non-zero vertex activation implies a certain (non-zero) activation in its successors, which they call a Fully Coupled Flux.
+
+%using Fully Coupled Fluxes (FCF) as features. 
+
+The aim of this paper is to identify pathway activation patterns that differ between biological samples of different classes, in order to give a biologist different information than models built from simple gene features.
+
+An example of when such a pattern is useful is in consistency modelling .
+Here a pattern of inconsistency, an example of which is given in Figure~\ref{fig1}b, is matched against gene regulatory networks. 
+Then for each match Answer Set Programming techniques are used to amend the pathways and remove the inconsistency. Similar work has been carried out in ILP  where biological pathways have been constructed and amended \citep{ray2010automatic}.
+The patterns identified with our approach could be used in a similar task to further understand the system level perturbations between classes.
+
+%In contrast to the work on consistency modelling but consistent with the FCF approach, we assume the pathways are an accurate representation of biological processes and we are considering individual sample expression values mapped on to the pathway. 
+
+%Network represenation
+
+%In consistency modelling \citep{guziolowski2010analysis} a pattern of inconsistency is matched against gene regulatory networks and for each match Answer Set Programming techniques are used to amend the pathways to remove the inconsistency. Similar work has been carried out in ILP  where biological pathways have been constructed and amended \citep{ray2010automatic}. 
+
 % including paths and loops where some of the entities could possibly be represented by uninstantiated variables. 
-Two examples are i). Consistency modelling and ii). Network motif finding.
+%For example, these are used in Consistency modelling a method where ... 
+%
 
-In consistency modelling \citep{guziolowski2010analysis} a pattern of inconsistency is matched against gene regulatory networks and for each match Answer Set Programming techniques are used to amend the pathways to remove the inconsistency. Similar work has been carried out in ILP  where biological pathways have been constructed and amended \citep{ray2010automatic}. 
-
-In network motif finding \citep{kim_biological_2011}, it is also common to ignore known biological concepts. Most motif finding algorithms are applied to a network representation which is inappropriate for pathways. There is also a failure to adapt the motif finding algorithm to take into account biological knowledge. In addition the patterns are often described in a language which is not as expressive as first order logic. This means they are unable to find patterns with uninstantiated variables, or to find patterns with relational concepts such as paths or loops. It is also the case that motifs are rarely identified for the purpose of discrimination in a classification task. Motifs are most commonly searched for across a single network constructed from an agglomerative of the experimental data, rather than by mapping expression values to a standard graph of the pathway. This approach would give an instantiated graph for each sample and enables the searching for pathway activation patterns (using the node states) across samples - taking into account the class of each sample. 
-
-This work is most similar to  \citep{holec2008using} in which the authors propose using Fully Coupled Fluxes (FCF) as features. An FCF is the longest possible chain of vertices in which non-zero vertex activation implies a certain (non-zero) activation in its successors.
-
-The aim of this paper is to identify pathway activation patterns that differ between biological samples of different classes, in order to give a biologist different information than models built from simple gene features. In contrast to the work on consistency modelling but consistent with the FCF approach, we assume the pathways are an accurate representation of biological processes and we are considering individual sample expression patterns mapped on to the pathway. 
+%Network motif finding is a set of methods to find general patterns. 
 
 
+
+
+%Most motif finding algorithms are applied to a network representation which is inappropriate for pathways. There is also a failure to adapt the motif finding algorithm to take into account biological knowledge.   Motifs are most commonly searched for across a single network constructed from an agglomerative of the experimental data, rather than by mapping expression values to a standard graph of the pathway. This approach would give an instantiated graph for each sample and enables the searching for pathway activation patterns (using the node states) across samples - taking into account the class of each sample. 
+ 
 %\section{Aim}
 %
 
 	  
-\section{Method}
- We use structural pathway information to build first order features that are used to construct classification and ranking models, which  provide an appropriate level of abstraction for the interpretation of the model to be insightful for a biologist. 
+\section{Methods}
+ We use structural pathway information to build first order features that are used to construct classification models that discriminate between two lung cancer types.
+ We collate raw data from online sources, process this data to create a
+ Prolog knowledge base, and then learn first order models using this knowledge base. 
+
 \subsection{Raw Data} 
 We obtained from the GEO a two class Lung Cancer data set containing 37 SCC examples and 33 AC examples; the accession number is GSE2109.The classes correspond to different types of Lung Cancer. For details of this task please see \citep{rhrissorrakrai_sbv_2013}.  
 We use the Reactome database to provide the background knowledge about pathways. Reactome \citep{croft_reactome_2013} is a collection of manually curated peer reviewed pathways. Reactome is made available as an RDF XML Biopax level 3 file file, which allows for simple passing using SWI-Prolog's semantic web libraries. 
 
 
 \subsection{Data Processing}
-Reactome uses the bipartite network representation of entities and reactions- we extract this and process it to create a reaction centric graph, where nodes are reactions and directed edges are labelled either as \lq activation\rq\ ,\lq inhibition \rq\ or \lq follows\rq\ corresponding to how reactions are connected. 
-Boolean networks~\citep{wang_boolean_2012} are a common abstraction in biological research, but these are normally applied at the gene or protein level not at the reaction level. In order to use a boolean network abstraction on a reaction network, we apply a logical aggregation method from the measured probes in the microarray to reactions.
+Reactome uses the bipartite network representation of entities and reactions. 
+We extract and process this to create a reaction centric graph, where nodes are reactions and directed edges are labelled either as \lq activation\rq\ ,\lq inhibition \rq\ or \lq follows\rq\ corresponding to how reactions are connected. 
+Boolean networks~\citep{wang_boolean_2012} are a common abstraction in biological research, but these are normally applied at the gene or protein level not at the reaction level. In order to use a boolean network abstraction on a reaction network, we apply a logical aggregation method that aggregrates measured probe values in the microarray into reactions.
 
-We first discretize the probe values into binary values using Barcode \citep{mccall_gene_2014} which is a tool for applying learnt thresholds to microarray data,  Barcode makes it possible to compare gene expressions, both within a sample and between samples potentially measured by different arrays. 
+The first step of this aggregation is the discretization of the probe values into binary values. 
+We do this using Barcode \citep{mccall_gene_2014}, a tool for converting the continuous probe values to binary variables by applying previously learnt thresholds to microarray data. 
+This makes it possible to compare gene expressions, both within a sample and between samples potentially measured by different arrays. 
 
 Once we have binary probe values, we use the structure provided by
-the Reactome RDF graph and our biological understanding to build reaction level features. Each reaction has a set of inputs and set of outputs, in addition a reaction may be controlled (activated or inhibited) by an entity. Entities in Reactome include protein complexes and protein sets, which in turn can themselves comprise of other complexes or sets. For the logical aggregation step we interpret this structure as a simple logical circuit. The relationship between probes and proteins is treated as an OR gate, protein complexes as an AND gate, and protein sets also as an OR gate. With a final step taking into account the activation or inhibition of the reaction by any controlling entities. In this way we can say that a reaction \lq can proceed \rq\ if and only if, the input circuit evaluates to true. If a reaction \lq can proceed' \rq\ then we say that it is \lq on\rq\ otherwise we say that it is \lq off \rq. %In this way we have created a biologically informed aggregate set of features at the reaction level, which has used the internal structure of a pathway in their construction. 
+the Reactome RDF graph and key biological concepts to build reaction level features. 
+Each reaction has a set of inputs that are required for a particular reaction. In addition a reaction may be controlled (activated or inhibited) by particular entities. 
+Entities in Reactome include protein complexes and protein sets, which can themselves comprise of other complexes or sets. 
+We interpret each reaction input as a logical circuit. The relationship between probes and proteins is treated as an OR gate, protein complexes as an AND gate, and protein sets also as an OR gate. 
+A final step takes into account the activation or inhibition of the reaction by any controlling entities. 
+In this way we can say that a reaction \lq can proceed\rq\ if and only if the input circuit evaluates to true. 
+If a reaction \lq can proceed\rq\ then we say that it is \lq on\rq\ otherwise we say that it is \lq off\rq. %In this way we have created a biologically informed aggregate set of features at the reaction level, which has used the internal structure of a pathway in their construction. 
 
 \subsection{Searching for Pathway Activation Patterns}
-In this work we have experimented with two propositionalization methods, separately and then combining them. We search for features independently in each pathway and with a language bias that suitably constrains the search in order to achieve a manageable number of structures. 
+We experimented with two propositionalization methods, Warmr and Treeliker, separately and then combining them. We search for features independently in each pathway and with a language bias that suitably constrains the search in order to achieve a manageable number of structures. 
 
-The first method Warmr \citep{dehaspe_mining_1997} is the first order equivalent of item set and association rule mining.It can be used as propositionalization method by independently searching for frequent queries in the two classes. An advantage of Warmr is that it is possible to define background predicates to define relevant concepts. For example a path or loop of all \lq on\rq\ reactions. As Warmr does not prune by relevance to classification tasks it can however quickly build to an intractable search with many irrelevant or similar queries/features built. 
+The first method, Warmr \citep{dehaspe_mining_1997}, is the first order equivalent of item set and association rule mining. It can be used as a propositionalization method by independently searching for frequent queries in the two classes. An advantage of Warmr is that it is possible to define background predicates for relevant concepts. For example a path or loop of all \lq on\rq\ reactions. As Warmr does not prune by relevance to classification tasks it can however quickly build to an intractable search with many irrelevant or similar queries/features built. 
+
+The second method, TreeLiker~\citep{vzelezny2013fast}, is a modern ILP tool that implements a number of algorithms. It has been shown to produce long features by building features bottom up in a blockwise manner. This is desirable for our task as longer features will provide more mechanistic insight to a biologist. A limitation is that the features are \lq tree like \rq\ which means there can be no cycles in the variables. Unlike Warmr, TreeLiker does not support explicit background knowledge and therefore all relevant relations need to be preprocessed using Prolog.
+
+Our combined method takes a top feature constructed by TreeLiker and uses this as the basis for the language bias input into Warmr. 
+We then add language bias constraints that guide Warmr to add cycles to the tree like feature.
+This results in long cyclical features that Warmr would not be able to find on its own. 
 	     
+To evaluate the generated features we use them to build classifiers, to estimate their ability to discriminate between the two lung cancer types.
+We use the J48 and JRIP tree and rule building algorithms of the Weka package to do this, chosen because these produce interpretable models.
 
-The second method, TreeLiker~\citep{vzelezny2013fast} is a modern ILP tool that implements a number of algorithms. It has been shown to produce long features by building features bottom up in a blockwise manner. This is a desirable trait for  this task as longer features will provide more mechanistic insight to a biologist. A limitation is that the features are \lq tree like \rq\ which means there can be no cycles in the variables. TreeLiker unlike Warmr does not support explicit background knowledge and therefore all relevant relations need to be preprocessed using prolog.
+\section{Preliminary Results}
+%As we are interested in producing comprehensible models, we limit our experiments to rule (JRIP) and tree building algorithms (J48).We employ Wekas implementation. 
 
-For a combined method we first take a top feature constructed by TreeLiker and use this as the basis for the language bias input into Warmr. We then add further language bias constraints that guide Warmr into searching for frequent queries that create cycles in the tree like features. This results in longer features that contain cycles than Warmr can find on its own. 
-	     
-	     
-\section{Results}
-As we are interested in producing comprehensible models, we limit our experiments to rule (JRIP) and tree building algorithms (J48).We employ Wekas implementation. The best classifiers are in the Apoptosis pathway and achieve 81.29\% accuracy (std 13\%) in 10 fold cross validation.
-\newpage
-
-
-\noindent
-{\it{Example features found by 1) Warmr, 2) TreeLiker and 3) Combined}}
+We give the following example features found by 1) Warmr, 2) TreeLiker and 3) our combined approach:
 \begin{verbatim}
 1:array(A),reaction(A,B,1),reaction(A,C,0),link(C,B,D),link(B,C,E).
 \end{verbatim}
-\noindent 
-This is a simple cyclical feature, the variable A matches one sample. 
-
-\noindent
 
 \begin{verbatim}
 2:reaction(A,0), link(A,B,follows), reaction(B,1), link(B,C,_),    
 reaction(C,0), link(A,D,activation), reaction(D,0).
 \end{verbatim}
-\noindent 
-This is a longer tree like feature -notice TreeLiker does not require a variable for the sample.  
-
-\noindent
 
 \begin{verbatim}
 3:array(A),reaction(A,B,0),link(B,C,follows),reaction(A,C,1),
@@ -185,14 +230,22 @@ link(C,D,E),reaction(A,D,0),link(B,F,activation),reaction(A,F,1),
 link(F,D,E),link(D,G,E),reaction(A,G,0)
 \end{verbatim}
 \noindent
-This final feature is both long and contains a cycle. With the structured features found, we were able to achieve a comparable accuracy to that of a model built with raw expression values - but now we have identified pathway activation perturbations rather than just gene expression perturbations. 
+Feature 1 is a simple cyclical feature found by Warmr, the variable A matches one sample. 
+Feature 2 is a longer tree like feature found by TreeLiker. Notice TreeLiker does not require a variable for the sample.  
+Feature 3 is found by our combined method, it is both long and contains a cycle. 
+
+
+To date we have found promising features for the Apoptosis pathway, which, using  
+the Jrip model, achieved mean 81.29\% accuracy (std 13\%) using 10 fold cross validation. This is a comparable accuracy to that of a model built with raw expression values, but now we have identified pathway activation 
+perturbations rather than just gene expression perturbations. 
+
 
 \section{Discussion}
-The Pathway Activation Patterns that are found using this approach are in clinically relevant pathways. These patterns may give diagnostic and clinical insights that biologists can develop into new hypotheses for further investigation. 
+The Pathway Activation Patterns we found using this approach are in clinically relevant pathways. These patterns may give diagnostic and clinical insights that biologists can develop into new hypotheses for further investigation. 
 
-This work has shown the appropriateness of using ILP methods to mine the abundance of highly structured biological data. Using this method we have identified differences in Pathway Activation Patterns that go beyond the standard analysis of differentially expressed genes, enrichment analysis, gene feature ranking and pattern mining for common network motifs. We have also demonstrated the use of logical aggregation to a  reaction graph and how this simplifies the search for hypothesises to an extent where searching all pathways is tractable. The extension of TreeLiker found features with Warmr to connect cycles is believed to be novel. This enables the finding of long cyclical features. 
+This work has shown the potential of ILP methods for mining the abundance of highly structured biological data. Using this method we have identified differences in Pathway Activation Patterns that go beyond the standard analysis of differentially expressed genes, enrichment analysis, gene feature ranking and pattern mining for common network motifs. We have also demonstrated the use of logical aggregation with a reaction graph and how this simplifies the search for hypotheses to an extent where searching all pathways is tractable. 
+We have introduced a novel approach that uses Warmr to extend features initially identified with TreeLiker. This makes it possible to search for long cyclical features. 
 \newline
-
 
 
 %\subsubsection*{Acknowledgments.} Thanks to ...
